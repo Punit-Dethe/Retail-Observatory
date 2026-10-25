@@ -26,4 +26,4 @@ Each result retains its scope, source hash, definitions, eligible row count and 
 
 ## Readiness
 
-Without model configuration, real guided investigations are available and open-ended questions are explicitly described as unsupported. With a compatible configuration, the server routes free-form questions through the tool planner. A live model call has not been verified without user-provided configuration; the protocol path is checked with controlled model-response fixtures.
+Without model configuration, real guided investigations are available and open-ended questions are explicitly described as unsupported. With a compatible configuration, the server routes free-form questions through the tool planner. The protocol path is checked with controlled model-response fixtures. On 25 October 2026, a live question using the user-configured Token Harbor endpoint and `deepseek-v4.1-flash:free` successfully selected the approved market tool, applied a UK/Germany 2011 scope, and returned six computed blocks plus an explanation. This verifies that configuration for that request; provider availability can vary. Credentials are stored only in the ignored local `.env`.

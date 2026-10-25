@@ -17,12 +17,13 @@ export function starterBoard(name='The retail picture'):Board {
  const nodes:Board['nodes']=[{id:uid(),type:'heading',position:{x:70,y:65},data:{title:'Retail at a glance',subtitle:'One starting point. Many directions to explore.',groupId},draggable:true,selectable:false}]
  const positions=[{x:70,y:133},{x:650,y:133},{x:70,y:550},{x:650,y:550}]
  blocks.forEach((block,i)=>nodes.push({id:block.id,type:'analysis',position:positions[i],data:{block,groupId,originQuestion:'Retail at a glance'},style:{width:i%2?350:550},width:i%2?350:550} as AnalysisNode))
- return {id:uid(),name,nodes,edges:[],scope,viewport:{x:14,y:98,zoom:.92},messages:[{id:uid(),role:'assistant',content:'Your retail data is already on the canvas. Ask a question, follow a pattern, or select a chart to take the next step.',mode:'guided'}],updatedAt:new Date().toISOString()}
+ const viewportWidth=typeof window==='undefined'?1366:window.innerWidth
+ const dockWidth=viewportWidth>1024?420:0
+ const zoom=Math.max(.25,Math.min(.92,(viewportWidth-112-dockWidth)/930))
+ return {id:uid(),name,nodes,edges:[],scope,viewport:{x:88-70*zoom,y:32-65*zoom,zoom},messages:[{id:uid(),role:'assistant',content:'Your retail data is already on the canvas. Ask a question, follow a pattern, or select a chart to take the next step.',mode:'guided'}],updatedAt:new Date().toISOString()}
 }
 export function readBoards():BoardState {
  try {const raw=localStorage.getItem(STORAGE_KEY);if(raw){const parsed=JSON.parse(raw);if(validateState(parsed)){
-  const original=starterBoard()
-  parsed.boards=parsed.boards.map(b=>b.name===original.name&&b.nodes.length===original.nodes.length&&b.edges.length===0&&b.messages.length===1&&b.messages[0].content===original.messages[0].content&&b.viewport.x===14&&[63,98].includes(b.viewport.y)&&b.viewport.zoom===.92&&b.nodes.every((n,i)=>{const initial=original.nodes[i];return n.type===initial.type&&n.position.x===initial.position.x&&(n.position.y===initial.position.y||(i>=3&&n.position.y===515))&&(n.type==='heading'?n.data.title===initial.data.title:n.data.block.title===(initial as AnalysisNode).data.block.title&&n.data.block.body===(initial as AnalysisNode).data.block.body)})?{...b,nodes:b.nodes.map((n,i)=>i>=3?{...n,position:{...n.position,y:550}}:n),viewport:{...b.viewport,y:98}}:b)
   return parsed
  }}}catch{}
  const board=starterBoard();return {version:1,activeId:board.id,boards:[board]}
