@@ -18,7 +18,7 @@ export function starterBoard(name='The retail picture'):Board {
  const positions=[{x:70,y:133},{x:650,y:133},{x:70,y:550},{x:650,y:550}]
  blocks.forEach((block,i)=>nodes.push({id:block.id,type:'analysis',position:positions[i],data:{block,groupId,originQuestion:'Retail at a glance'},style:{width:i%2?350:550},width:i%2?350:550} as AnalysisNode))
  const viewportWidth=typeof window==='undefined'?1366:window.innerWidth
- const dockWidth=viewportWidth>1024?420:0
+ const dockWidth=viewportWidth>1024?438:0
  const zoom=Math.max(.25,Math.min(.92,(viewportWidth-112-dockWidth)/930))
  return {id:uid(),name,nodes,edges:[],scope,viewport:{x:88-70*zoom,y:32-65*zoom,zoom},messages:[{id:uid(),role:'assistant',content:'Your retail data is already on the canvas. Ask a question, follow a pattern, or select a chart to take the next step.',mode:'guided'}],updatedAt:new Date().toISOString()}
 }
