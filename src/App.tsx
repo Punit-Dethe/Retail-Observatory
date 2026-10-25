@@ -1,32 +1,133 @@
-import { useEffect, useState } from 'react'
-import { ArrowDownToLine, ArrowRight, CalendarDays, Check, ChevronDown, Database, ExternalLink, Globe2, LoaderCircle, RotateCcw, X } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { ArrowDownToLine, ArrowRight, ArrowUpRight, CalendarDays, Check, ChevronDown, Database, ExternalLink, Globe2, RotateCcw, X } from 'lucide-react'
 import { Empty, number, Segmented } from './components'
+import { DashboardSkeleton, RefreshStatus } from './Loading'
+import { Navigation, pages } from './Navigation'
 import { Customers, DataLab, Markets, Overview, Products, Sales } from './pages'
 import type { Analytics, Filters, Meta, Page } from './types'
 
-const pages:Page[]=['Overview','Sales','Customers','Products','Markets','Data lab']
-const titles:Record<Page,[string,string]>={Overview:['The bigger picture.','Two years of transactions. A clearer view of what matters.'],Sales:['Every sale has a story.','Follow the peaks, the patterns, and the value of every basket.'],Customers:['Get to know your customers.','From a first purchase to the habits that bring people back.'],Products:['Find your next bestseller.','See what sells, what gets credited, and what belongs together.'],Markets:['A local shop. A wider world.','Understand where demand comes from and how markets compare.'],'Data lab':['Behind the numbers.','Real data. Clear methods. Insights you can explain.']}
-const query=new URLSearchParams(window.location.search)
-const initialPage=pages.includes(query.get('page') as Page)?query.get('page') as Page:'Overview'
-const initialFilters={start:query.get('start')||'2009-12-01',end:query.get('end')||'2011-12-09',country:query.get('country')||'all'}
-const visibleDate=(v:string)=>new Date(`${v}T12:00:00`).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})
-function Loading(){return <div className="loading-state" role="status" aria-label="Calculating analytics"><div className="loading-label"><LoaderCircle size={17} className="spin"/>Finding the patterns in your selection…</div><div className="skeleton-metrics">{[1,2,3,4].map(i=><div key={i}/>)}</div><div className="skeleton-charts"><div/><div/></div><div className="skeleton-charts lower"><div/><div/></div></div>}
-export default function App(){
- const [page,setPage]=useState<Page>(initialPage),[filters,setFilters]=useState<Filters>(initialFilters),[draftStart,setDraftStart]=useState(initialFilters.start),[draftEnd,setDraftEnd]=useState(initialFilters.end)
- const [meta,setMeta]=useState<Meta|null>(null),[data,setData]=useState<Analytics|null>(null),[loading,setLoading]=useState(true),[error,setError]=useState(''),[retry,setRetry]=useState(0),[dateError,setDateError]=useState(''),[showDates,setShowDates]=useState(false)
- useEffect(()=>{const c=new AbortController();fetch('/api/meta',{signal:c.signal}).then(async r=>{if(!r.ok)throw new Error('The data service could not be reached.');return r.json()}).then(setMeta).catch(e=>{if(e.name!=='AbortError'){setError(`${e.message} Check that the local Python server is running, then retry.`);setLoading(false)}});return()=>c.abort()},[retry])
- useEffect(()=>{if(!meta)return;const c=new AbortController();setLoading(true);setError('');const p=new URLSearchParams(filters as unknown as Record<string,string>);fetch(`/api/analytics?${p}`,{signal:c.signal}).then(async r=>{if(!r.ok){const v=await r.json().catch(()=>({}));throw new Error(v.error||'We could not calculate this selection.')}return r.json()}).then(v=>{setData(v);setLoading(false)}).catch(e=>{if(e.name!=='AbortError'){setError(e.message);setLoading(false)}});return()=>c.abort()},[meta,filters,retry])
- useEffect(()=>{const params=new URLSearchParams({...filters,page});window.history.replaceState(null,'',`${window.location.pathname}?${params}`)},[page,filters])
- const navigate=(p:Page)=>{setPage(p);window.scrollTo({top:0,behavior:'instant'})}
- const updateDates=(start:string,end:string)=>{setFilters(f=>({...f,start,end}));setDraftStart(start);setDraftEnd(end);setDateError('');setShowDates(false)}
- const selectPreset=(v:string)=>{if(!meta)return;v==='All data'?updateDates(meta.start,meta.end):updateDates(`${v}-01-01`,v==='2011'?meta.end:`${v}-12-31`)}
- const preset=meta&&filters.start===meta.start&&filters.end===meta.end?'All data':filters.start==='2010-01-01'&&filters.end==='2010-12-31'?'2010':filters.start==='2011-01-01'&&filters.end===meta?.end?'2011':''
- const country=(v:string)=>setFilters(f=>({...f,country:v}))
- const selectMonth=(v:string)=>{const start=`${v}-01`;const dt=new Date(`${start}T12:00:00`);dt.setMonth(dt.getMonth()+1,0);const end=`${v}-${String(dt.getDate()).padStart(2,'0')}`;updateDates(start<meta!.start?meta!.start:start,end>meta!.end?meta!.end:end)}
- const reset=()=>{if(meta){updateDates(meta.start,meta.end);country('all')}}
- const applyDates=(e:React.FormEvent)=>{e.preventDefault();if(!draftStart||!draftEnd){setDateError('Choose a start and end date.');return}if(draftStart>draftEnd){setDateError('The start date must be on or before the end date.');return}if(meta&&(draftStart<meta.start||draftEnd>meta.end)){setDateError(`Choose dates from ${visibleDate(meta.start)} to ${visibleDate(meta.end)}.`);return}updateDates(draftStart,draftEnd)}
- const exportCsv=()=>{const kind:Record<Page,string>={Overview:'trend',Sales:'transactions',Customers:'customers',Products:'products',Markets:'countries','Data lab':'transactions'};const p=new URLSearchParams({...filters,kind:kind[page]});window.location.assign(`/api/export?${p}`)}
- const props=data&&meta?{data,meta,onNavigate:navigate,onCountry:country,onMonth:selectMonth}:null
- return <div className="app"><a className="skip-link" href="#main-content">Skip to dashboard</a><header className="app-header"><button className="brand" onClick={()=>navigate('Overview')} aria-label="Retail Observatory overview"><span className="brand-mark"><span/><span/><span/></span><span><strong>retail.</strong><small>OBSERVATORY</small></span></button><nav className="main-nav" aria-label="Dashboard sections">{pages.map(p=><button key={p} className={page===p?'active':''} aria-current={page===p?'page':undefined} onClick={()=>navigate(p)}>{p}</button>)}</nav><a className="dataset-button" href="https://archive.ics.uci.edu/dataset/502/online+retail+ii" target="_blank" rel="noreferrer" aria-label="Open Online Retail II source"><Database size={17}/><span>UCI <i>/</i> 02</span><ExternalLink size={12}/></a></header><main id="main-content"><div className="page-heading"><div><div className="breadcrumb"><button onClick={()=>navigate('Overview')}>Workspace</button><span>/</span><span>{page}</span></div><h1>{titles[page][0]}</h1><p>{titles[page][1]}</p></div><div className="coverage"><i/><div><strong>Online Retail II</strong><span>Historical dataset · 2009–2011</span></div></div></div><section className="filter-bar" aria-label="Dashboard filters"><div className="filter-left"><Segmented options={['All data','2010','2011']} value={preset} onChange={selectPreset} label="Date preset"/><div className="date-control"><button className={`date-button ${showDates?'selected':''}`} onClick={()=>setShowDates(!showDates)} aria-expanded={showDates} aria-controls="custom-date-panel"><CalendarDays size={14}/><span>{visibleDate(filters.start)}<span className="date-dash">—</span>{visibleDate(filters.end)}</span><ChevronDown size={13}/></button>{showDates&&<form className="date-popover" id="custom-date-panel" onSubmit={applyDates}><div className="date-popover-heading"><strong>Explore a date range</strong><button type="button" className="icon-button" aria-label="Close date picker" onClick={()=>setShowDates(false)}><X size={15}/></button></div><label>From<input type="date" value={draftStart} min={meta?.start} max={meta?.end} onChange={e=>setDraftStart(e.target.value)} required/></label><label>Through<input type="date" value={draftEnd} min={meta?.start} max={meta?.end} onChange={e=>setDraftEnd(e.target.value)} required/></label>{dateError&&<p className="date-error" role="alert">{dateError}</p>}<button className="button primary" type="submit">Apply dates<Check size={14}/></button></form>}</div></div><div className="filter-right"><label className="country-select"><Globe2 size={15}/><select value={filters.country} onChange={e=>country(e.target.value)} aria-label="Filter by country"><option value="all">All markets</option>{meta?.countries.map(c=><option key={c}>{c}</option>)}</select></label><button className="button export-button" onClick={exportCsv} disabled={!data||loading}><ArrowDownToLine size={15}/><span>Export CSV</span></button></div></section>{(filters.country!=='all'||preset==='')&&<div className="filter-context"><span><span className="filter-dot"/>{filters.country==='all'?'All markets':filters.country} · {visibleDate(filters.start)} to {visibleDate(filters.end)}</span><button onClick={reset}><RotateCcw size={12}/>Reset filters</button></div>}{loading?<Loading/>:error?<div className="error-state" role="alert"><Database size={28}/><h2>The data needs a moment.</h2><p>{error}</p><button className="button primary" onClick={()=>setRetry(r=>r+1)}>Try again<RotateCcw size={14}/></button></div>:props&&data&&data.summary.rows===0?<Empty action={<button className="button primary" onClick={reset}>Reset filters<ArrowRight size={14}/></button>}/>:props?<div className="page-content" key={page}>{page==='Overview'?<Overview {...props}/>:page==='Sales'?<Sales {...props}/>:page==='Customers'?<Customers {...props}/>:page==='Products'?<Products {...props}/>:page==='Markets'?<Markets {...props}/>:<DataLab {...props}/>}</div>:null}<footer className="app-footer"><span><span className="footer-logo">r.</span>A little more understanding, in every view.</span><div>{meta&&<span>{number(meta.rawRows)} source rows</span>}<button onClick={()=>navigate('Data lab')}>Data & methodology<ArrowUpRightIcon/></button></div></footer></main></div>
+const titles: Record<Page, [string, string]> = {
+  Overview: ['The bigger picture.', 'A fresh perspective on two years of retail.'],
+  Sales: ['Every sale has a story.', 'Follow the peaks, the patterns, and the value of every basket.'],
+  Customers: ['Get to know your customers.', 'From a first purchase to the habits that bring people back.'],
+  Products: ['Find your next bestseller.', 'See what sells, what gets credited, and what belongs together.'],
+  Markets: ['A local shop. A wider world.', 'Understand where demand comes from and how markets compare.'],
+  'Data lab': ['Behind the numbers.', 'Real data. Clear methods. Insights you can explain.'],
 }
-function ArrowUpRightIcon(){return <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 12 12 4M4 4h8v8" stroke="currentColor" strokeWidth="1.3"/></svg>}
+const query = new URLSearchParams(window.location.search)
+const initialPage = pages.includes(query.get('page') as Page) ? query.get('page') as Page : 'Overview'
+const initialFilters = { start: query.get('start') || '2009-12-01', end: query.get('end') || '2011-12-09', country: query.get('country') || 'all' }
+const visibleDate = (value: string) => new Date(`${value}T12:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+const sameScope = (a: Filters, b: Filters) => a.start === b.start && a.end === b.end && a.country === b.country
+
+export default function App() {
+  const [page, setPage] = useState<Page>(initialPage)
+  const [filters, setFilters] = useState<Filters>(initialFilters)
+  const [draftStart, setDraftStart] = useState(initialFilters.start)
+  const [draftEnd, setDraftEnd] = useState(initialFilters.end)
+  const [meta, setMeta] = useState<Meta | null>(null)
+  const [data, setData] = useState<Analytics | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [retry, setRetry] = useState(0)
+  const [dateError, setDateError] = useState('')
+  const [showDates, setShowDates] = useState(false)
+  const [slow, setSlow] = useState(false)
+  const [hidden, setHidden] = useState(document.hidden)
+  const requestId = useRef(0)
+  const busy = !error && (loading || !data || !sameScope(data.filters, filters))
+  const refreshing = busy && Boolean(data)
+
+  useEffect(() => {
+    if (meta) return
+    const controller = new AbortController()
+    fetch('/api/meta', { signal: controller.signal }).then(async response => {
+      if (!response.ok) throw new Error('The data service could not be reached.')
+      return response.json()
+    }).then(value => { if (!controller.signal.aborted) setMeta(value) }).catch(e => {
+      if (e.name !== 'AbortError' && !controller.signal.aborted) { setError(`${e.message} Check that the local Python server is running, then retry.`); setLoading(false) }
+    })
+    return () => controller.abort()
+  }, [meta, retry])
+
+  useEffect(() => {
+    if (!meta) return
+    const controller = new AbortController()
+    const id = ++requestId.current
+    setLoading(true)
+    setError('')
+    const params = new URLSearchParams({ ...filters })
+    fetch(`/api/analytics?${params}`, { signal: controller.signal }).then(async response => {
+      if (!response.ok) { const result = await response.json().catch(() => ({})); throw new Error(result.error || 'We could not calculate this selection.') }
+      return response.json()
+    }).then(value => {
+      if (!controller.signal.aborted && id === requestId.current) { setData(value); setLoading(false) }
+    }).catch(e => {
+      if (e.name !== 'AbortError' && !controller.signal.aborted && id === requestId.current) { setError(e.message); setLoading(false) }
+    })
+    return () => controller.abort()
+  }, [meta, filters, retry])
+
+  useEffect(() => {
+    setSlow(false)
+    if (!busy) return
+    const timer = window.setTimeout(() => setSlow(true), 5000)
+    return () => window.clearTimeout(timer)
+  }, [busy, filters])
+  useEffect(() => { const update = () => setHidden(document.hidden); document.addEventListener('visibilitychange', update); return () => document.removeEventListener('visibilitychange', update) }, [])
+  useEffect(() => { const params = new URLSearchParams({ ...filters, page }); window.history.replaceState(null, '', `${window.location.pathname}?${params}`) }, [page, filters])
+
+  const navigate = (next: Page) => { if (next === page) return; setPage(next); window.scrollTo({ top: 0, behavior: 'instant' }) }
+  const changeFilters = (next: Filters) => { if (sameScope(filters, next)) return; setError(''); setFilters(next) }
+  const updateDates = (start: string, end: string) => { changeFilters({ ...filters, start, end }); setDraftStart(start); setDraftEnd(end); setDateError(''); setShowDates(false) }
+  const selectPreset = (value: string) => { if (!meta) return; value === 'All data' ? updateDates(meta.start, meta.end) : updateDates(`${value}-01-01`, value === '2011' ? meta.end : `${value}-12-31`) }
+  const preset = meta && filters.start === meta.start && filters.end === meta.end ? 'All data' : filters.start === '2010-01-01' && filters.end === '2010-12-31' ? '2010' : filters.start === '2011-01-01' && filters.end === meta?.end ? '2011' : ''
+  const country = (value: string) => changeFilters({ ...filters, country: value })
+  const selectMonth = (value: string) => {
+    if (!meta || busy) return
+    const start = `${value}-01`; const date = new Date(`${start}T12:00:00`); date.setMonth(date.getMonth() + 1, 0)
+    const end = `${value}-${String(date.getDate()).padStart(2, '0')}`
+    updateDates(start < meta.start ? meta.start : start, end > meta.end ? meta.end : end)
+  }
+  const reset = () => { if (!meta) return; changeFilters({ start: meta.start, end: meta.end, country: 'all' }); setDraftStart(meta.start); setDraftEnd(meta.end); setDateError(''); setShowDates(false) }
+  const applyDates = (event: React.FormEvent) => {
+    event.preventDefault()
+    if (!draftStart || !draftEnd) return setDateError('Choose a start and end date.')
+    if (draftStart > draftEnd) return setDateError('The start date must be on or before the end date.')
+    if (meta && (draftStart < meta.start || draftEnd > meta.end)) return setDateError(`Choose dates from ${visibleDate(meta.start)} to ${visibleDate(meta.end)}.`)
+    updateDates(draftStart, draftEnd)
+  }
+  const exportCsv = () => {
+    if (busy || !data || error) return
+    const kind: Record<Page, string> = { Overview: 'trend', Sales: 'transactions', Customers: 'customers', Products: 'products', Markets: 'countries', 'Data lab': 'transactions' }
+    const params = new URLSearchParams({ ...filters, kind: kind[page] }); window.location.assign(`/api/export?${params}`)
+  }
+  const retryRequest = () => { setError(''); setLoading(true); setRetry(value => value + 1) }
+  const props = data && meta ? { data, meta, onNavigate: navigate, onCountry: country, onMonth: selectMonth } : null
+
+  return <div className={`app ${hidden ? 'motion-paused' : ''}`}>
+    <a className="skip-link" href="#main-content">Skip to dashboard</a>
+    <header className="app-header">
+      <button className="brand" onClick={() => navigate('Overview')} aria-label="Retail Observatory overview"><span className="brand-mark" aria-hidden="true"><span /><span /><span /></span><span><strong>retail.</strong><small>OBSERVATORY</small></span></button>
+      <Navigation page={page} onChange={navigate} />
+      <a className="dataset-button" href="https://archive.ics.uci.edu/dataset/502/online+retail+ii" target="_blank" rel="noreferrer" aria-label="Open Online Retail II source"><span className="dataset-icon"><Database size={17} /></span><span>UCI <i>/</i> 02</span><ExternalLink size={12} /></a>
+    </header>
+    <main id="main-content">
+      <div className="page-heading"><div><div className="breadcrumb"><button onClick={() => navigate('Overview')}>Workspace</button><span>/</span><span>{page}</span></div><h1>{titles[page][0]}</h1><p>{titles[page][1]}</p></div><div className="coverage"><CalendarDays size={17} /><div><strong>Online Retail II</strong><span>Historical dataset · 2009–2011</span></div></div></div>
+      <section className="filter-bar" aria-label="Dashboard filters">
+        <div className="filter-left"><Segmented options={['All data', '2010', '2011']} value={preset} onChange={selectPreset} label="Date preset" /><div className="date-control"><button className={`date-button ${showDates ? 'selected' : ''}`} onClick={() => setShowDates(!showDates)} aria-expanded={showDates} aria-controls="custom-date-panel" aria-label={`Choose date range: ${visibleDate(filters.start)} to ${visibleDate(filters.end)}`}><CalendarDays size={15} /><span>{visibleDate(filters.start)}<span className="date-dash">—</span>{visibleDate(filters.end)}</span><ChevronDown size={13} /></button>{showDates && <form className="date-popover" id="custom-date-panel" onSubmit={applyDates}><div className="date-popover-heading"><strong>Explore a date range</strong><button type="button" className="icon-button" aria-label="Close date picker" onClick={() => setShowDates(false)}><X size={15} /></button></div><label>From<input type="date" value={draftStart} min={meta?.start} max={meta?.end} onChange={event => setDraftStart(event.target.value)} required /></label><label>Through<input type="date" value={draftEnd} min={meta?.start} max={meta?.end} onChange={event => setDraftEnd(event.target.value)} required /></label>{dateError && <p className="date-error" role="alert">{dateError}</p>}<button className="button primary" type="submit">Apply dates<Check size={14} /></button></form>}</div></div>
+        <div className="filter-right"><label className="country-select"><Globe2 size={15} /><select value={filters.country} onChange={event => country(event.target.value)} aria-label="Filter by country"><option value="all">All markets</option>{meta?.countries.map(value => <option key={value}>{value}</option>)}</select></label><button className="button export-button" aria-label="Export CSV" onClick={exportCsv} disabled={!data || busy || Boolean(error)}><ArrowDownToLine size={15} /><span>Export CSV</span></button></div>
+      </section>
+      {(filters.country !== 'all' || preset === '') && <div className="filter-context"><span><span className="filter-dot" />{filters.country === 'all' ? 'All markets' : filters.country} · {visibleDate(filters.start)} to {visibleDate(filters.end)}</span><button onClick={reset}><RotateCcw size={12} />Reset filters</button></div>}
+      <div className="analysis-stage">
+        {error ? <div className="error-state" role="alert"><span className="empty-symbol"><Database size={27} /></span><h2>The data needs a moment.</h2><p>{error}</p><button className="button primary" onClick={retryRequest}>Try again<RotateCcw size={14} /></button></div> : !props ? <DashboardSkeleton slow={slow} /> : <>
+          {refreshing && <RefreshStatus slow={slow} previous={data!.filters} />}
+          <div className={`data-surface ${refreshing ? 'is-refreshing' : ''}`} aria-busy={refreshing} inert={refreshing}>
+            {data!.summary.rows === 0 ? <Empty action={<button className="button primary" onClick={reset}>Reset filters<ArrowRight size={14} /></button>} /> : <div className="page-content" key={page}>{page === 'Overview' ? <Overview {...props} /> : page === 'Sales' ? <Sales {...props} /> : page === 'Customers' ? <Customers {...props} /> : page === 'Products' ? <Products {...props} /> : page === 'Markets' ? <Markets {...props} /> : <DataLab {...props} />}</div>}
+          </div>
+        </>}
+      </div>
+      <footer className="app-footer"><span><span className="footer-logo">r.</span>A little more understanding, in every view.</span><div>{meta && <span>{number(meta.rawRows)} source rows</span>}<button onClick={() => navigate('Data lab')}>Data & methodology<ArrowUpRight size={13} /></button></div></footer>
+    </main>
+  </div>
+}

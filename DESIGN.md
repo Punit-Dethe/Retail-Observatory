@@ -1,51 +1,107 @@
 ---
-name: Retail Observatory
-description: Calm, information-rich retail analytics with clear methods and restrained pastel accents.
+name: "Retail Observatory — Soft Studio"
+description: "A mature, approachable retail analytics workspace in lilac, blush, sky and charcoal."
 colors:
-  ink: "#202521"
-  muted: "#626862"
-  canvas: "#eeefeb"
-  surface: "#fbfcf9"
-  line: "#e4e6e1"
-  blue: "#3974bd"
-  metric-light: "#f9fbf6"
-  metric-dark: "#222822"
-  metric-blue: "#bed3ef"
-  metric-blue-ink: "#25374c"
-  insight-sage: "#e7ecdf"
-  chart-blue-light: "#a9bfe2"
-  chart-lavender: "#b4b0d9"
-  chart-sage: "#8da89a"
-  chart-sand: "#d6af8c"
-  chart-neutral: "#c8c9c4"
-  button-light: "#f9fbf6"
-  button-hover: "#e8ede3"
-  button-border: "#d6dcd3"
-  button-primary-hover: "#3b453c"
-  white: "#ffffff"
-  field-bg: "#f6f9f0"
-  field-border: "#dce4d2"
-  segment-track: "#e2e5df"
-  tag-bg: "#e9eee2"
-  tag-ink: "#60704c"
+  ink: "#302a3c"
+  muted: "#6c6379"
+  line: "#e6dfef"
+  accent: "#7862c7"
+  outer-canvas: "#eae5f4"
+  workspace: "#f7f5fb"
+  mobile-canvas: "#f5f2fb"
+  surface: "#ffffff"
+  filter-surface: "#efebf6"
+  segment-track: "#e7e0f0"
+  field-surface: "#f6f2fb"
+  field-border: "#ded5eb"
+  field-focus: "#a48ac4"
+  focus-halo: "#eee6f8"
+  selection: "#dcd0f5"
+  primary-hover: "#50415f"
+  secondary-ink: "#4b3e5d"
+  secondary-hover: "#eee7f8"
+  nav-muted: "#62596f"
+  nav-hover: "#f1ecf9"
+  title-ink: "#41334f"
+  subtitle: "#70667d"
+  axis-ink: "#776c83"
+  metric-charcoal: "#383143"
+  metric-charcoal-label: "#ded5e9"
+  metric-lilac: "#dfd5f3"
+  metric-lilac-ink: "#49385f"
+  metric-lilac-label: "#645275"
+  metric-sky: "#e7effa"
+  metric-sky-ink: "#35465d"
+  metric-sky-label: "#596a80"
+  metric-blush: "#f8e8ed"
+  metric-blush-ink: "#614151"
+  metric-blush-label: "#805e6d"
+  insight-surface: "#ebe3f7"
+  insight-title: "#4e3a65"
+  insight-body: "#6a567c"
+  insight-divider: "#dcd1eb"
+  chart-sky: "#9fc7e9"
+  chart-lilac: "#b6a4dd"
+  chart-blush: "#cf9fb5"
+  chart-peach: "#dfb08e"
+  chart-neutral: "#c3bbce"
+  chart-area: "#ece5f9"
+  chart-pareto: "#a378ac"
+  chart-pareto-area: "#f3e8f4"
+  chart-sales: "#afc5e6"
+  chart-credits: "#a86f6d"
+  chart-distribution: "#b6a5dc"
+  chart-scatter: "#8c76b9"
+  chart-dominant: "#393040"
+  chart-leading-market: "#5b4d6d"
+  chart-grid: "#e5e7e9"
+  chart-grid-warm: "#e6e5e7"
+  chart-cell-ink: "#463957"
+  spark-light: "#d5c7f0"
+  spark-dark: "#655095"
+  tag-champions: "#e6dcf5"
+  tag-loyal: "#ddeaf8"
+  tag-new: "#f5e5d9"
+  tag-risk: "#f2dce8"
+  tag-potential: "#e4e3f6"
+  tag-hibernating: "#eee8f1"
+  refresh-surface: "#e8ddf4"
+  refresh-ink: "#634578"
+  refresh-caption: "#6c537e"
+  tooltip-copy: "#6c5f7a"
+  refresh-track: "#dfd1ef"
+  refresh-indicator: "#b295cd"
+  skeleton-charcoal: "#e8e2ee"
+  skeleton-lilac: "#e5dcf2"
+  skeleton-sky: "#e7edf7"
+  skeleton-blush: "#f4e7ee"
+  skeleton-base: "#e5ddeb"
+  skeleton-value: "#d9cee4"
+  skeleton-lilac-bar: "#d4c5e7"
+  skeleton-sky-bar: "#cbd8eb"
+  skeleton-blush-bar: "#e6cfdd"
+  skeleton-plot: "#d7cce7"
+  skeleton-grid: "#f0eaf6"
+  error: "#9d4c65"
 typography:
   headline:
     fontFamily: "DM Sans Variable, DM Sans, sans-serif"
-    fontSize: "37px"
-    fontWeight: 550
-    lineHeight: 1.15
-    letterSpacing: "-1.3px"
+    fontSize: "42px"
+    fontWeight: 500
+    lineHeight: 1.16
+    letterSpacing: "-1.4px"
   metric:
     fontFamily: "DM Sans Variable, DM Sans, sans-serif"
-    fontSize: "30px"
-    fontWeight: 550
+    fontSize: "32px"
+    fontWeight: 500
     lineHeight: 1.15
     letterSpacing: "-1px"
   title:
     fontFamily: "DM Sans Variable, DM Sans, sans-serif"
-    fontSize: "14px"
+    fontSize: "16px"
     fontWeight: 550
-    letterSpacing: "-0.3px"
+    lineHeight: 1.4
+    letterSpacing: "-0.35px"
   body:
     fontFamily: "DM Sans Variable, DM Sans, sans-serif"
     fontSize: "12px"
@@ -53,152 +109,160 @@ typography:
     lineHeight: 1.65
   label:
     fontFamily: "DM Sans Variable, DM Sans, sans-serif"
-    fontSize: "11px"
+    fontSize: "12px"
     fontWeight: 500
     lineHeight: "17px"
 rounded:
-  field: "8px"
-  tooltip: "12px"
-  metric-mobile: "17px"
-  panel-mobile: "19px"
-  metric: "21px"
-  panel: "23px"
-  control: "25px"
-  pill: "30px"
+  cell: "6px"
+  tag: "8px"
+  field: "14px"
+  button: "15px"
+  segment-track: "16px"
+  refresh: "18px"
+  filter: "20px"
+  metric-mobile: "20px"
+  panel-mobile: "22px"
+  metric: "23px"
+  panel: "24px"
+  navigation: "28px"
+  workspace: "32px"
 spacing:
   compact: "8px"
+  mobile-gap: "17px"
+  metric-gap: "18px"
+  gap: "20px"
   control: "10px 15px"
-  mobile-gap: "14px"
-  gap: "18px"
-  metric: "20px 22px 19px"
-  panel: "22px 23px"
+  metric: "22px 23px 19px"
+  panel: "25px 26px"
 components:
   button-primary:
     backgroundColor: "{colors.ink}"
-    textColor: "{colors.white}"
+    textColor: "{colors.surface}"
     typography: "{typography.label}"
-    rounded: "{rounded.control}"
+    rounded: "{rounded.button}"
     padding: "{spacing.control}"
   button-primary-hover:
-    backgroundColor: "{colors.button-primary-hover}"
-    textColor: "{colors.white}"
+    backgroundColor: "{colors.primary-hover}"
+    textColor: "{colors.surface}"
   button-secondary:
-    backgroundColor: "{colors.button-light}"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.control}"
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.secondary-ink}"
+    rounded: "{rounded.button}"
     padding: "{spacing.control}"
   panel:
     backgroundColor: "{colors.surface}"
     rounded: "{rounded.panel}"
     padding: "{spacing.panel}"
-  metric-dark:
-    backgroundColor: "{colors.metric-dark}"
-    textColor: "{colors.white}"
+  metric-charcoal:
+    backgroundColor: "{colors.metric-charcoal}"
+    textColor: "{colors.surface}"
     rounded: "{rounded.metric}"
     padding: "{spacing.metric}"
-  metric-blue:
-    backgroundColor: "{colors.metric-blue}"
-    textColor: "{colors.metric-blue-ink}"
+  metric-lilac:
+    backgroundColor: "{colors.metric-lilac}"
+    textColor: "{colors.metric-lilac-ink}"
     rounded: "{rounded.metric}"
     padding: "{spacing.metric}"
   navigation-active:
     backgroundColor: "{colors.ink}"
-    textColor: "{colors.white}"
-    rounded: "{rounded.pill}"
-    padding: "12px 18px"
-  tag:
-    backgroundColor: "{colors.tag-bg}"
-    textColor: "{colors.tag-ink}"
-    rounded: "20px"
-    padding: "4px 8px"
+    textColor: "{colors.surface}"
+    rounded: "24px"
+    padding: "12px 17px"
+  refresh-status:
+    backgroundColor: "{colors.refresh-surface}"
+    textColor: "{colors.refresh-ink}"
+    rounded: "{rounded.refresh}"
+    padding: "15px 18px 17px"
 ---
 
-# Design System: Retail Observatory
+# Design System: Retail Observatory — Soft Studio
 
 ## Overview
 
-**Creative North Star: "The Retail Observatory"**
+**Creative North Star: "The Soft Studio Observatory"**
 
-A calm workspace for examining real retail transactions. The supplied dashboard references establish a light neutral grey canvas, rounded panels, dark selected navigation and a powder blue secondary KPI. DM Sans carries both the conversational page headings and the compact analytical detail.
+A mature, approachable workspace for serious retail analysis. Lilac, blush and sky surfaces make information welcoming; charcoal text, restrained symbols and real charts keep it credible. Rounded forms, soft depth and smooth feedback carry the playfulness. Decorative imagery and childish ornament do not belong in this world.
 
-The interface operates as a college retail analytics demonstration across Overview, Sales, Customers, Products, Markets and Data lab. Charts, totals and tables provide the hierarchy; decorative imagery has no role. Data definitions and limitations sit close to the evidence they explain.
+This is the approved visual experiment on `ui/playful-observatory`; the former green-neutral world is superseded here and remains on `main`. `src/studio.css`, imported after `src/styles.css`, is authoritative for final styles. Charts and states also draw from `src/components.tsx`, `src/pages.tsx`, `src/Loading.tsx`, `src/Navigation.tsx` and `src/App.tsx`.
 
 **Key Characteristics:**
-- Quiet neutral surfaces with measured blue and sage emphasis.
-- Large summary values above compact, information-rich charts and tables.
-- Consistent rounded controls and panels across all six pages.
-- Clear selections, traceable labels and restrained motion.
+- Lilac framing, white analytical panels and charcoal anchors.
+- A coordinated charcoal, lilac, sky and blush KPI strip.
+- Soft structural shadows and rounded rectangular controls.
+- Real-request feedback that preserves context and respects motion preferences.
 
 ## Colors
 
-The palette combines a warm grey canvas, near-white panels, deep green-black text and muted analytical accents. Frontmatter values are normative; `src/styles.css` and `src/components.tsx` are the implementation sources.
+Frontmatter records the intentional role palette, including chart and loading variants. The sidecar supplies derived eight-step tonal ramps; these reference extensions do not create additional implemented CSS tokens.
 
 ### Primary
 
-Ink anchors selected navigation, primary actions and the brand. Blue identifies the main time series, active heatmap intensity, links and keyboard focus.
+Charcoal anchors brand, actions and the selected navigation indicator. Violet is the main analytical series, intensity hue, focus outline and link family.
 
 ### Secondary
 
-Powder blue distinguishes the orders KPI. Sage marks the insight panel and methodological callouts. The chart sequence proceeds through blue, pale blue, lavender, sage, sand and neutral; keep categories and their legends aligned.
+Lilac, sky and blush distinguish KPIs after charcoal, with separate darker ink and label companions. The chart sequence is violet, sky, lilac, blush, peach and neutral; preserve legend assignments. Credits have a separate muted rose tone. Insights and methodological support use lilac surfaces.
 
 ### Neutral
 
-Canvas separates near-white panels without heavy strokes. Muted text supplies supporting labels; line supplies quiet dividers within tables and grouped content. The dark revenue KPI uses lighter supporting text rather than ordinary muted text.
+A pale lilac outer canvas surrounds a lighter workspace and white panels. Mobile uses a continuous pale canvas. Plum-grey text and lavender-grey dividers replace the old greenish neutrals.
 
-**The Data Color Rule.** Use accents to encode a series, category, state or meaningful emphasis. Preserve explicit labels and values alongside color.
+**The Data Color Rule.** Use color for series, category, state or measured emphasis. Keep explicit names, units and values alongside it.
 
 ## Typography
 
-DM Sans Variable is bundled locally through `@fontsource-variable/dm-sans`, with DM Sans and sans-serif fallbacks. Use this single family throughout, including formulas and schema labels.
+Use locally bundled DM Sans Variable, with DM Sans and sans-serif fallbacks, throughout. Its rounded letterforms and moderate weights provide warmth and analytical precision.
 
-- **Headline:** the frontmatter headline role; sentence case, balanced wrapping and compact tracking. It becomes (32px) at the tablet breakpoint and (31px) on mobile, with a (16ch) mobile maximum width.
-- **Metric:** tabular numerals, the frontmatter metric role; wide screens increase values to (33px). Ordinary mobile values are (25px), while long numeric and text values use smaller explicit variants.
-- **Panel title:** the title role. Wide screens use (15px), mobile uses (13px). Secondary subtitles usually use (10px) with generous line height.
-- **Body and labels:** body copy is (12px); chart labels and table text usually sit at (10–11px), with (8–9px) supporting mobile detail. Keep descriptions short and attach units to values.
+- **Headline:** the frontmatter role, sentence case and balanced wrapping; (36px) at tablet width, (34px) on mobile with an (18ch) maximum width.
+- **Metric:** tabular numbers, (32px) by default and (33px) on wide screens. Text values use (25px), with explicit smaller long-value variants. Mobile values use (27px), or (22px) for long values; narrow numeric values use (20px).
+- **Panel title:** (16px), weight (550); compact/mobile titles use (15px). Subtitles use (12px), reducing to (11px).
+- **Body and controls:** mostly (12px), supported by (11px) labels. Mobile preserves (10–12px) detail. Tables stay (12px), with (11px) headers. Keep explanations concise and use tabular numbers for comparisons.
 
 ## Layout
 
-The centered application has a maximum width of (1800px), desktop padding of (27px 56px 0), and a shared (18px) panel rhythm. The header places brand, six-page pill navigation and source link on one row; page title and coverage indicator precede the global filter bar.
+The desktop workspace is a centered inset shell: maximum width (1640px), width `calc(100% - 48px)`, margin (24px), padding (29px 40px 0). Brand, six-page navigation and source link precede the aligned page heading, global filters and analytical content.
 
-Four equal KPI columns lead into a main (2.05:1) chart/insight split. Other views use equal two-column grids; the overview lower row uses (1.1:1:0.78). Grids use `minmax(0,…)` to allow chart containers to shrink. Panels, charts and tables own their internal hierarchy rather than inheriting a uniform card layout.
+The main rhythm is (20px), with (18px) between four equal KPIs. Charts use a (2.05:1) main split, equal two-column grids or a three-column overview row according to information needs. Panels have (25px 26px) padding. Chart heights are (266px), compact (236px), revenue (260px).
 
-- At (1500px) and above, horizontal padding becomes (72px), panels gain room and charts become taller.
-- At (1190px) and below, horizontal padding becomes (32px), controls compact, and the overview lower row becomes two columns with its market donut hidden.
-- At (960px) and below, navigation moves to a full-width second header row. The date trigger becomes an icon, and the main split becomes (1.65:1).
-- At (700px) and below, the canvas uses (20px 18px 0) padding, navigation scrolls horizontally, the coverage badge hides, filters wrap, KPI cards form two columns, and content grids become one column with (14px) gaps. The overview market donut returns in the stack. Export uses its icon; tables retain their information through horizontal scrolling with a (640px) minimum width.
-- Mobile metrics hide sparklines for legibility. Numeric values stay together; long text values wrap. Smaller wide-value variants avoid clipping. At (380px) and below, page gutters become (14px), and the customer segment legend stacks beneath its donut.
+- At (1500px) and above, shell gutters increase to (47px).
+- At (1260px) and below, gutters become (28px), controls compact and KPI sparklines hide. Inherited (1190px) rules also reduce the overview row to two columns and hide its market donut.
+- At (960px) and below, the shell has (14px) margins, (24px) gutters and (27px) corners. Navigation occupies a scrollable second row, dates become an icon trigger, and the main split becomes (1.6:1).
+- At (700px) and below, the shell becomes an edge-to-edge pale canvas with (22px 18px 0) padding. Filters use two rows; KPIs form two columns with (12px) gaps; panels stack with (17px) gaps. Coverage hides, export becomes icon-only and the market donut returns. Tables scroll at a (680px) minimum width.
+- Mobile metrics keep sparklines hidden for legibility. Text values wrap; long numbers use smaller explicit variants. At (380px) and below, outer gutters become (14px).
 
 ## Elevation & Depth
 
-Resting panels are flat. Tonal surfaces, spacing and internal dividers communicate grouping. The selected segmented control has a small lift; floating date selection and chart tooltips receive shadows. Do not add persistent panel shadows or gradients.
+Soft depth is intentional: the shell, white navigation and panels have low-opacity plum shadows. Actions and the selected indicator have stronger local lift; popovers and tooltips float above content. Use the exact sidecar shadow vocabulary. Gradients are confined to loading shimmer, where they indicate activity.
 
-The sidecar records the exact segmented, date-popover and tooltip shadows. Controls transition background, text and shadow over (.16s). Page content arrives over (.25s) with a small vertical movement; reduced-motion preferences disable animation and transitions. Chart series animations are disabled.
+Controls use short color/background feedback, a gentle (1px) press movement and the shared ease-out curve. Page content arrives over (300ms); popovers enter over (220ms). The navigation indicator moves and changes width over (300ms). Its width transition is a deliberate bounded exception: the indicator is absolutely positioned behind stable buttons, with no page-layout effects.
 
 ## Shapes
 
-Panels use generous rounded corners, KPI cards slightly tighter ones, and controls use pill forms. Mobile panels and metrics reduce their radii with their padding. Borders distinguish fields and secondary controls; table rows and methodological groups use fine horizontal dividers. Heat cells use small (4px) corners, and series keys use dots or small squares. Lucide line icons and the simple bar-mark brand supply functional symbols.
+The shell has the broadest corners, followed by navigation, panels and metrics. Controls use rounded rectangles: buttons (15px), fields (14px), selected segments (12px), tags (8px) and heat cells (6px). Brand bars, functional line icons and small rounded category tokens provide restrained character.
 
 ## Components
 
-- **Buttons:** compact, centered icon-and-label controls. Primary actions use ink with white text; secondary actions use a light fill and thin border. Disabled buttons lower opacity to (.45) and use an unavailable cursor. Export has a slightly roomier dark treatment.
-- **Navigation:** a near-white rounded track with a dark active pill and modest neutral hover. Active pages expose `aria-current="page"`. Keep all six destinations visible through horizontal scrolling on mobile.
-- **Segmented controls:** a grey track with a white selected pill. Use for date presets and small chart metric switches; preserve their group labels.
-- **Fields:** soft green-neutral fill, fine borders and compact labels. Search uses a pill container; date fields use tighter corners inside a floating form. Date errors appear beside the fields. Keep explicit country, search and date labels.
-- **Panels:** heading, optional short subtitle and contextual action sit above the content. Use sage fill for insight/method support, not every panel. Metric cards keep label, dominant value and explanatory note; action icons appear on hover or keyboard focus on desktop.
-- **Charts:** pale dashed grids, restrained axes, compact ticks and nearby legends. Tooltips format GBP and counts consistently. A chart footer explains units, partial periods or available drill-down. Customer frequency/spend scatter charts use logarithmic axes with explicit ticks; preserve the logarithmic axis label and calculated tick arrays when extending them. The market scatter remains linear.
-- **Tables and tags:** right-align numeric columns with tabular figures, use horizontal dividers and a subtle row hover. Segment tags use named pastel variants. Retention cells retain values and unobserved dashes; heatmap cells are keyboard focusable with descriptive labels.
-- **States and access:** preserve the skip link, semantic page and section headings, labelled controls, loading status, alert errors and reset/retry paths. Keyboard focus uses a blue (2px) outline offset by (4px). Search inputs have no local outline, so additions must preserve a visible focus indication on their container or field. Do not claim chart color or hover alone communicates its meaning.
+- **Buttons and fields:** charcoal primary, white secondary, plum hover and visible focus. Disabled controls use opacity (.48) with no shadow. Search/select containers gain a border and halo on `:focus-within`; date inputs sit in an elevated white form. Preserve labels, validation errors and an accessible name for icon-only export.
+- **Navigation:** a measured charcoal indicator sits behind the active page in a white track. `aria-current` identifies selection. Font readiness and resizing update its bounds. Small screens scroll the chosen destination into view; reduced motion uses instant scrolling.
+- **Segments and tags:** selected white segments lift gently above a lilac track. Customer tags use named lilac, sky, peach and blush variants with darker text. Keep their label meaning alongside color.
+- **Panels and KPIs:** white panels use soft depth; insights use lilac. The KPI strip follows charcoal, lilac, sky and blush, with matching darker label companions. Desktop exploration actions appear on hover/focus; mobile hides them.
+- **Charts and tables:** violet leads, with pale fills, light dashed grids, nearby legends and formatted white tooltips. Tooltip labels/body require dark plum foregrounds. Keep units, definitions and partial-period notes nearby. Customer frequency/spend scatter uses logarithmic axes with explicit tick arrays; market scatter stays linear. Numeric table columns align right; rows use subtle separators and hover.
+- **Initial loading:** show the structural KPI/chart skeleton only while real requests are pending. Coordinated placeholders, transform-based shimmer and a polite live status acknowledge progress without invented values. Skeletons are hidden from assistive technology. After (5s), copy explains that calculation continues; this timer never delays results.
+- **Refresh loading:** retain previous analytics at opacity (.55), label the exact prior market/date scope, and mark the surface `inert` and busy. The banner uses an indeterminate sweep, never a percentage. Keep its caption contrast readable. Filters can interrupt requests; stale responses cannot overwrite the latest selection. Errors expose retry.
+- **Motion and access:** shimmer loops use (1.7s), chart sheen (2s), dots (1.2s) and refresh sweep (1.4s). Pause recurring animation while the document is hidden. Reduced motion removes all animations/transitions, hides sheen and leaves static activity indications: zero animation loops. Preserve the skip link, labelled controls, live statuses, alert errors, focusable heat cells and violet (2px) focus outline with (4px) offset.
 
 ## Do's and Don'ts
 
 ### Do:
-- **Do** carry the neutral canvas, rounded panels, dark selected pill and powder blue KPI across new screens.
-- **Do** give numbers, chart labels, units and explanatory notes a clear hierarchy.
-- **Do** preserve mobile value legibility, explicit logarithmic ticks and horizontally scrollable dense tables.
-- **Do** retain keyboard focus, accessible labels and reduced-motion behavior.
+- **Do** use lilac, blush, sky and charcoal as one coordinated mature palette.
+- **Do** keep charts, values and readable explanations central to the hierarchy.
+- **Do** preserve soft depth, measured navigation, mobile value legibility and explicit logarithmic ticks.
+- **Do** tie loading feedback to real work, label retained data and honor interruption, hidden-document pause and reduced motion.
 
 ### Don't:
-- **Don't** introduce decorative imagery, ornamental gradients or persistent card shadows.
-- **Don't** let a sparkline, icon or action crowd the primary metric value on mobile.
-- **Don't** use color as the only explanation of a series, category or state.
-- **Don't** turn chart-heavy pages into repeated equal-weight cards when their information needs different space.
+- **Don't** restore the former greenish neutral canvas on this experiment branch.
+- **Don't** add childish ornament, decorative imagery, heavy shadows or unrelated accent colors.
+- **Don't** present simulated progress percentages or impose loading delays.
+- **Don't** leave previous results interactive while a replacement selection is pending.
+- **Don't** rely on color or motion alone to explain data or state.
+
