@@ -18,10 +18,10 @@ Extract useful information from UCI retail transactions through a polished inter
 Use real source data and reproducible analysis. Include sales trends, products, geography, customer behavior, segmentation, basket associations and data quality. Apply methods when useful, without forcing a syllabus connection. Download data into this project. Local implementation is authorized.
 
 ## Brand Commitments
-UI quality is a primary requirement. The original dashboard is saved on main. On the ui/playful-observatory experiment branch, the user requests a more approachable, mature and playful interface inspired by the first three supplied images: lilac, blush and sky tones, rounded surfaces, soft depth and smooth feedback. The former greenish neutral canvas is explicitly rejected. Playful must not become childish.
+UI quality is a primary requirement. The original dashboard is saved on main. After reviewing the experiment, the user rejected purple and the tablet-like enclosing panel and requested the original palette, horizontal space and layout. Original neutral canvas, black selections and powder blue accents are authoritative. Motion should improve continuity and feedback without moving content or rebuilding cards.
 
 ## UI Experiment Scope
-Execute the visual and interaction redesign only. Loading must visibly acknowledge real pending requests, preserve continuity, handle interruption and honor reduced-motion preferences. Broader product directions and LLM capabilities are discussion ideas only; they are not authorized for implementation in this iteration.
+The user authorized performance and interaction work: fixed generated JSON values for All markets combined with All data, 2010 and 2011 on all six pages; no new runtime cache. Country filters and custom dates retain on-demand analytics. Keep card identities stable and animate numeric updates, provide pending feedback without layout shifts, and make Customers navigation responsive. Broader product directions and LLM capabilities remain discussion ideas only.
 
 ## Evidence on Hand
 Eleven attached dashboard inspiration images. The project folder was initially empty. User confirmed Online Retail II via https://www.kaggle.com/datasets/mashlyn/online-retail-ii-uci. Syllabus covers KDD, preprocessing, visualization, classification, clustering, and association rules. Original UCI data is used for reproducibility.

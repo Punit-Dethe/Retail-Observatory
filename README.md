@@ -29,6 +29,18 @@ npm run build
 
 Run `python server/app.py` in one terminal and `npm run dev` in another. The Vite development URL is http://127.0.0.1:5173 and `/api` proxies to port 8000. `npm run build` runs TypeScript checking and creates `dist/`. Run `python scripts/verify_analysis.py` for analysis invariants.
 
+The All markets / All data, 2010 and 2011 selections read complete fixed values from `src/data/retail-presets.json`. These are versioned build assets, not runtime cache entries. They support all six views and local Revenue/Orders switches. Other countries and custom ranges continue through the analytics API.
+
+After changing the source dataset or analytics definitions, regenerate and verify these values before rebuilding:
+
+```powershell
+python scripts/build_presets.py
+python scripts/verify_presets.py
+npm run build
+```
+
+Read [UI and performance notes](docs/ui-experiment.md) for the current experiment branch, baseline comparison and interaction behavior.
+
 ## What is included
 
 - Overview with revenue, orders, customers, AOV, insights and product/market patterns.
