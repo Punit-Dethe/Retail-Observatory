@@ -1,0 +1,9 @@
+node_modules/
+dist/
+data/raw/
+data/retail.sqlite*
+__pycache__/
+.venv/
+*.log
+.DS_Store
+*.tsbuildinfo
