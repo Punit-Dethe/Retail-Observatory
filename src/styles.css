@@ -8,3 +8,4 @@
 @media(max-width:700px){.metric .spark{display:none}.metric-center{min-width:0;display:block}.metric-center>strong{display:block;max-width:100%}.metric-center>.numeric-value{white-space:nowrap}.metric-center>.numeric-value.wide-value{font-size:22px;letter-spacing:-.7px}.metric-center>.text-value{white-space:normal;overflow-wrap:anywhere;line-height:1.15}.metric-center>.text-value.wide-value{font-size:21px}.metric-note{overflow-wrap:anywhere}}
 @media(max-width:380px){.metric-center>.numeric-value.wide-value{font-size:19px;letter-spacing:-.6px}.metric-center>.text-value.wide-value{font-size:19px}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+.canvas-entry-link{display:inline-flex;align-items:center;gap:6px;color:#47769e;text-decoration:none;font-size:11px}.canvas-entry-link:hover{text-decoration:underline}.canvas-entry-link:focus-visible{outline:2px solid #3677bc;outline-offset:4px}

@@ -43,6 +43,8 @@ Read [UI and performance notes](docs/ui-experiment.md) for the current experimen
 
 ## What is included
 
+The experimental investigation workspace is available at **http://127.0.0.1:8000/canvas**. Arrange charts and notes on an open canvas, ask guided retail questions, inspect evidence, and save/export investigations. Guided mode uses real approved calculations without a model key. Open-ended model conversation is optional; see [model setup](docs/canvas-llm.md), [implementation plan](docs/canvas-plan.md) and [canvas API](docs/canvas-api.md). Boards are saved in this browser, not to a shared account. Existing dashboard remains at `/`.
+
 - Overview with revenue, orders, customers, AOV, insights and product/market patterns.
 - Sales trends, credits, order-value distribution and purchase-time heatmaps.
 - RFM segmentation, K-means and silhouette quality, cohort retention and customer exploration.

@@ -31,3 +31,8 @@ Eleven attached dashboard inspiration images. The project folder was initially e
 - Useful breadth with readable navigation.
 - Charts explain patterns and their limitations.
 - Filters and exports must work.
+
+## Investigation Canvas
+The user authorized a new DashboardGPT-like workspace on a separate branch after merging the completed dashboard into main. It uses an open pan/zoom surface with movable charts and notes, a floating right-side analyst, and spatially organized investigations without enclosing cluster boxes. Connections are optional labelled relationships, not causal claims. Existing dashboard remains available.
+
+Real registered retail tools must work without a model key in explicitly labelled guided mode. Configured LLMs may plan calls to the same approved tools and interpret their actual outputs. Questions about new-product launch success must acknowledge unavailable evidence. Saved canvases retain results, scope, definitions and provenance. Reference repositories may be cloned in a references folder.

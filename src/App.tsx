@@ -141,7 +141,7 @@ export default function App() {
           {data.summary.rows === 0 ? <Empty action={<button className="button primary" onClick={reset}>Reset filters<ArrowRight size={14} /></button>} /> : <PageSurface page={page} data={data} onNavigate={navigate} onCountry={country} onMonth={selectMonth} />}
         </div>}
       </div>
-      <footer className="app-footer"><span><span className="footer-logo">r.</span>A little more understanding, in every view.</span><div><span>{number(retailMeta.rawRows)} source rows</span><button onClick={() => navigate('Data lab')}>Data & methodology<svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 12 12 4M4 4h8v8" stroke="currentColor" strokeWidth="1.3" /></svg></button></div></footer>
+      <footer className="app-footer"><span><span className="footer-logo">r.</span>A little more understanding, in every view.</span><div><a href="/canvas" className="canvas-entry-link">Investigation canvas<ExternalLink size={12}/></a><span>{number(retailMeta.rawRows)} source rows</span><button onClick={() => navigate('Data lab')}>Data & methodology<svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 12 12 4M4 4h8v8" stroke="currentColor" strokeWidth="1.3" /></svg></button></div></footer>
     </main>
   </div>
 }

@@ -13,6 +13,7 @@ const embedded = document.getElementById('retail-presets')
 if (!embedded?.textContent) throw new Error('Fixed retail data is missing. Rebuild or restart the local development server.')
 const presets = JSON.parse(embedded.textContent) as RetailPresets
 export const retailMeta = presets.meta
+export const retailSourceSha256 = presets.sourceSha256
 
 export function getPreset(filters: Filters): Analytics | null {
   if (filters.country !== 'all') return null

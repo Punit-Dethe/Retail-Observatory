@@ -14,6 +14,8 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'server'))
 from analytics import META, analyze, select
+from canvas_agent import capabilities, investigate, ProviderError
+from canvas_analysis import catalog
 
 
 def scope(query):
@@ -46,9 +48,38 @@ class Handler(SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def do_POST(self):
+        if urlparse(self.path).path != '/api/canvas/investigate':
+            return self.json_response({'error': 'Endpoint not found.'}, 404)
+        try:
+            # Local UI endpoint: do not accept cross-site browser requests.
+            origin = self.headers.get('Origin')
+            if origin and origin not in ['http://127.0.0.1:8000', 'http://localhost:8000', 'http://127.0.0.1:5173', 'http://localhost:5173', f'http://127.0.0.1:{self.server.server_port}', f'http://localhost:{self.server.server_port}']:
+                return self.json_response({'error': 'Cross-origin requests are not allowed.'}, 403)
+            length = int(self.headers.get('Content-Length', '0'))
+            if not 0 < length <= 100_000:
+                raise ValueError('Send a JSON request smaller than 100 KB.')
+            if 'application/json' not in self.headers.get('Content-Type', ''):
+                raise ValueError('Use application/json.')
+            request = json.loads(self.rfile.read(length))
+            return self.json_response(investigate(request))
+        except ProviderError as exc:
+            return self.json_response({'error': str(exc)}, 502)
+        except (ValueError, TypeError, OverflowError) as exc:
+            return self.json_response({'error': str(exc)}, 400)
+        except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError):
+            pass
+        except Exception:
+            traceback.print_exc()
+            return self.json_response({'error': 'The investigation failed. See the local server terminal for details.'}, 500)
+
     def do_GET(self):
         parsed = urlparse(self.path)
         try:
+            if parsed.path == '/api/canvas/capabilities':
+                return self.json_response(capabilities())
+            if parsed.path == '/api/canvas/catalog':
+                return self.json_response(catalog(parse_qs(parsed.query).get('q', [''])[0]))
             if parsed.path == '/api/meta':
                 return self.json_response(META)
             if parsed.path == '/api/health':
