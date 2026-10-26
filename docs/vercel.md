@@ -44,7 +44,7 @@ The checked-in `.env.example` contains placeholders only. Your local `.env` is e
 
 The original 132 MB local SQLite warehouse remains ignored. Its approximately 20 MB gzip snapshot is tracked under `data/deploy/`, together with a hash/size manifest. On a cold start, the function verifies and unpacks the snapshot to its temporary directory, then opens it read-only. No source download, ETL, API key or network storage is needed to initialize the data.
 
-Scientific Python dependencies and the snapshot must fit Vercel's function bundle limit. `excludeFiles` removes frontend/development assets from the function; do not remove these exclusions. A first API request can be slower because the function initializes the warehouse and dataframe. Default dashboard presets and the starting canvas are bundled in the frontend and do not wait for that initialization.
+Python dependencies and the snapshot must fit Vercel's 225 MB function bundle limit. Runtime dependencies are only pandas, NumPy and openpyxl; K-means, silhouette and basket co-occurrence are implemented with NumPy in `server/analytics.py`. Do not add SciPy or scikit-learn back to `requirements.txt`: together they push the bundle to about 250 MB and the deployment fails with `LAMBDA_SIZE_EXCEEDED`. `excludeFiles` removes frontend/development assets from the function; do not remove these exclusions. A first API request can be slower because the function initializes the warehouse and dataframe. Default dashboard presets and the starting canvas are bundled in the frontend and do not wait for that initialization.
 
 After changing the warehouse or cleaning pipeline locally, rebuild the deployment snapshot and commit both files before deploying:
 

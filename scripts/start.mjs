@@ -21,7 +21,7 @@ function run(exe, args, options = {}) {
   const result = spawnSync(exe, args, { stdio: 'inherit', ...options });
   if (result.status !== 0) process.exit(result.status || 1);
 }
-const imports = spawnSync(python, [...prefix, '-c', 'import pandas,numpy,openpyxl,sklearn,scipy,threadpoolctl'], { stdio: 'ignore' });
+const imports = spawnSync(python, [...prefix, '-c', 'import pandas,numpy,openpyxl'], { stdio: 'ignore' });
 if (imports.status !== 0) run(python, [...prefix, '-m', 'pip', 'install', '-r', 'requirements.txt']);
 if (!existsSync('data/retail.sqlite') || !existsSync('data/metadata.json')) run(python, [...prefix, 'scripts/prepare_data.py']);
 function newest(dir) {

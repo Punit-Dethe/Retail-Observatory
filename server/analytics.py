@@ -7,12 +7,63 @@ import calendar
 import sqlite3
 import numpy as np
 import pandas as pd
-from scipy.sparse import csr_matrix
-from sklearn.cluster import KMeans
-from sklearn.metrics import silhouette_score
-from sklearn.preprocessing import StandardScaler
-from threadpoolctl import threadpool_limits
 from warehouse import database_path
+
+
+# NumPy-only k-means, scaling and silhouette keep the hosted function under Vercel's bundle limit
+# (SciPy and scikit-learn add ~140 MB). Behaviour follows scikit-learn's defaults: k-means++ seeding,
+# Lloyd iterations, relative tolerance, best of n_init runs by inertia.
+def standardize(x):
+    x = np.asarray(x, dtype=float)
+    std = x.std(axis=0)
+    return (x - x.mean(axis=0)) / np.where(std > 0, std, 1)
+
+
+def kmeans(x, k, seed=42, n_init=10, max_iter=300, tol=1e-4):
+    rng = np.random.default_rng(seed)
+    threshold = tol * float(np.var(x, axis=0).mean())
+    best_labels, best_inertia = None, np.inf
+    for _ in range(n_init):
+        centers = [x[rng.integers(len(x))]]
+        nearest = ((x - centers[0]) ** 2).sum(axis=1)
+        for _ in range(1, k):
+            total = nearest.sum()
+            pick = rng.choice(len(x), p=nearest / total) if total > 0 else rng.integers(len(x))
+            centers.append(x[pick])
+            nearest = np.minimum(nearest, ((x - x[pick]) ** 2).sum(axis=1))
+        centers = np.array(centers)
+        for _ in range(max_iter):
+            labels = ((x[:, None, :] - centers[None]) ** 2).sum(axis=2).argmin(axis=1)
+            moved = np.array([x[labels == j].mean(axis=0) if (labels == j).any() else centers[j] for j in range(k)])
+            shift = float(((moved - centers) ** 2).sum())
+            centers = moved
+            if shift <= threshold:
+                break
+        distances = ((x[:, None, :] - centers[None]) ** 2).sum(axis=2)
+        labels = distances.argmin(axis=1)
+        inertia = float(distances.min(axis=1).sum())
+        if inertia < best_inertia:
+            best_labels, best_inertia = labels, inertia
+    return best_labels
+
+
+def silhouette(x, labels, sample_size, seed=42):
+    rng = np.random.default_rng(seed)
+    index = rng.permutation(len(x))[:sample_size]
+    xs, ls = x[index], labels[index]
+    groups = np.unique(ls)
+    if len(groups) < 2:
+        return None
+    distance = np.sqrt(((xs[:, None, :] - xs[None]) ** 2).sum(axis=2))
+    scores = np.zeros(len(xs))
+    for i in range(len(xs)):
+        same = ls == ls[i]
+        if same.sum() <= 1:
+            continue  # Singleton clusters score 0, as in scikit-learn.
+        a = distance[i, same].sum() / (same.sum() - 1)
+        b = min(distance[i, ls == g].mean() for g in groups if g != ls[i])
+        scores[i] = (b - a) / max(a, b) if max(a, b) > 0 else 0
+    return float(scores.mean())
 
 ROOT = Path(__file__).resolve().parents[1]
 META = json.loads((ROOT / 'data/metadata.json').read_text(encoding='utf-8'))
@@ -80,11 +131,10 @@ def customer_analysis(sales, end):
     customers['segment'] = np.select([
         (r >= 4) & (f >= 4), f >= 4, (r >= 4) & (f <= 2), (r >= 3) & (f >= 2), (r <= 2) & (f >= 3)
     ], ['Champions', 'Loyal customers', 'New customers', 'Potential loyalists', 'At risk'], default='Hibernating')
-    x = StandardScaler().fit_transform(np.log1p(customers[['recency', 'frequency', 'monetary']]))
+    x = standardize(np.log1p(customers[['recency', 'frequency', 'monetary']]))
     k = min(4, len(customers), len(np.unique(x, axis=0)))
-    with threadpool_limits(limits=2):
-        labels = KMeans(n_clusters=k, random_state=42, n_init=10).fit_predict(x)
-        silhouette = float(silhouette_score(x, labels, sample_size=min(1500, len(x)), random_state=42)) if 1 < k < len(x) else None
+    labels = kmeans(x, k)
+    silhouette_value = silhouette(x, labels, min(1500, len(x))) if 1 < k < len(x) else None
     # Stable interpretable labels: C1 always has the highest average spend.
     order = pd.Series(customers.monetary.to_numpy()).groupby(labels).mean().sort_values(ascending=False).index.tolist()
     customers['cluster'] = [order.index(int(v)) for v in labels]
@@ -107,7 +157,7 @@ def customer_analysis(sales, end):
         observed = last.ordinal - pd.Period(month, freq='M').ordinal
         cohorts.append({'month': month, 'size': int(sizes[month]), 'retention': [round(float(counts.get((month, i), 0)) / sizes[month] * 100, 1) if i <= observed else None for i in range(12)]})
     customers = customers.drop(columns='last').rename_axis('id').reset_index().sort_values('monetary', ascending=False)
-    return customers, records(segments), records(clusters), cohorts, {'silhouette': round(silhouette, 3) if silhouette is not None else None, 'k': k, 'sampleSize': min(1500, len(x))}
+    return customers, records(segments), records(clusters), cohorts, {'silhouette': round(silhouette_value, 3) if silhouette_value is not None else None, 'k': k, 'sampleSize': min(1500, len(x))}
 
 
 def basket_analysis(sales):
@@ -121,8 +171,9 @@ def basket_analysis(sales):
     pairs = pairs[pairs.code.isin(eligible)]
     inv = pd.Categorical(pairs.invoice)
     codes = pd.Categorical(pairs.code.astype(str), categories=eligible.astype(str).tolist())
-    matrix = csr_matrix((np.ones(len(pairs), dtype=np.int32), (inv.codes, codes.codes)), shape=(len(inv.categories), len(eligible)))
-    co = (matrix.T @ matrix).toarray()
+    matrix = np.zeros((len(inv.categories), len(eligible)), dtype=np.float64)
+    matrix[inv.codes, codes.codes] = 1  # Pairs are de-duplicated, so each cell is 0/1.
+    co = np.rint(matrix.T @ matrix).astype(np.int64)  # Exact integer counts.
     names = sales.drop_duplicates('code').set_index('code')['name'].astype(str).to_dict()
     rules = []
     min_count = max(20, int(np.ceil(total * 0.002)))
