@@ -2,6 +2,8 @@
 
 A local analytics dashboard for a college data warehousing and mining project, built on the real UCI Online Retail II dataset. React + TypeScript + Recharts frontend, Python analytics API, SQLite dimensional warehouse. No API key or Kaggle login required.
 
+For hosting the dashboard, Playground and Python API together, follow [Vercel deployment settings](docs/vercel.md). The repository includes routing, a Python function entry point and a compressed deployment warehouse. Model chat uses server-side `RETAIL_LLM_*` variables; never put the key in a `VITE_*` variable.
+
 ## Run
 
 From this folder:
@@ -42,6 +44,8 @@ npm run build
 Read [UI and performance notes](docs/ui-experiment.md) for the current experiment branch, baseline comparison and interaction behavior.
 
 ## What is included
+
+The experimental investigation workspace is available at **http://127.0.0.1:8000/canvas**. Arrange charts and notes on an open canvas, ask guided retail questions, inspect evidence, and save/export investigations. Guided mode uses real approved calculations without a model key. Open-ended model conversation is optional; see [model setup](docs/canvas-llm.md), [implementation plan](docs/canvas-plan.md) and [canvas API](docs/canvas-api.md). Boards are saved in this browser, not to a shared account. Existing dashboard remains at `/`.
 
 - Overview with revenue, orders, customers, AOV, insights and product/market patterns.
 - Sales trends, credits, order-value distribution and purchase-time heatmaps.

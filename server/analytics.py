@@ -1,5 +1,6 @@
 """Analysis over the cleaned merchandise fact table. All filters are inclusive."""
 from functools import lru_cache
+from contextlib import closing
 from pathlib import Path
 import json
 import calendar
@@ -11,10 +12,11 @@ from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 from sklearn.preprocessing import StandardScaler
 from threadpoolctl import threadpool_limits
+from warehouse import database_path
 
 ROOT = Path(__file__).resolve().parents[1]
 META = json.loads((ROOT / 'data/metadata.json').read_text(encoding='utf-8'))
-with sqlite3.connect(ROOT / 'data/retail.sqlite') as conn:
+with closing(sqlite3.connect(database_path().as_uri() + '?mode=ro', uri=True)) as conn:
     DATA = pd.read_sql_query('''SELECT f.invoice,f.product_id AS code,p.name,f.customer_id AS customer,
         f.country_id AS country,f.date_id,f.time,f.quantity,f.unit_price AS price,f.amount,f.is_return
         FROM fact_transaction f JOIN dim_product p ON f.product_id=p.product_id''', conn)

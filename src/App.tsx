@@ -126,7 +126,7 @@ export default function App() {
     <a className="skip-link" href="#main-content">Skip to dashboard</a>
     <header className="app-header">
       <button className="brand" onClick={() => navigate('Overview')} aria-label="Retail Observatory overview"><span className="brand-mark" aria-hidden="true"><span /><span /><span /></span><span><strong>retail.</strong><small>OBSERVATORY</small></span></button>
-      <nav className="main-nav" aria-label="Dashboard sections">{pages.map(value => <button key={value} className={selectedPage === value ? 'active' : ''} aria-current={selectedPage === value ? 'page' : undefined} onClick={() => navigate(value)}>{value}</button>)}</nav>
+      <div className="dashboard-navigation"><nav className="main-nav" aria-label="Dashboard sections">{pages.map(value => <button key={value} className={selectedPage === value ? 'active' : ''} aria-current={selectedPage === value ? 'page' : undefined} onClick={() => navigate(value)}>{value}</button>)}</nav><a href="/canvas" className="playground-link">Playground<ArrowRight size={13}/></a></div>
       <a className="dataset-button" href="https://archive.ics.uci.edu/dataset/502/online+retail+ii" target="_blank" rel="noreferrer" aria-label="Open Online Retail II source"><Database size={17} /><span>UCI <i>/</i> 02</span><ExternalLink size={12} /></a>
     </header>
     <main id="main-content">
@@ -141,7 +141,7 @@ export default function App() {
           {data.summary.rows === 0 ? <Empty action={<button className="button primary" onClick={reset}>Reset filters<ArrowRight size={14} /></button>} /> : <PageSurface page={page} data={data} onNavigate={navigate} onCountry={country} onMonth={selectMonth} />}
         </div>}
       </div>
-      <footer className="app-footer"><span><span className="footer-logo">r.</span>A little more understanding, in every view.</span><div><span>{number(retailMeta.rawRows)} source rows</span><button onClick={() => navigate('Data lab')}>Data & methodology<svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 12 12 4M4 4h8v8" stroke="currentColor" strokeWidth="1.3" /></svg></button></div></footer>
+      <footer className="app-footer"><span><span className="footer-logo">r.</span>A little more understanding, in every view.</span><div><a href="/canvas" className="canvas-entry-link">Playground<ExternalLink size={12}/></a><span>{number(retailMeta.rawRows)} source rows</span><button onClick={() => navigate('Data lab')}>Data & methodology<svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 12 12 4M4 4h8v8" stroke="currentColor" strokeWidth="1.3" /></svg></button></div></footer>
     </main>
   </div>
 }
