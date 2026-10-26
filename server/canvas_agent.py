@@ -37,7 +37,9 @@ def configured():
 
 
 def capabilities():
+    missing = [name for name in ('RETAIL_LLM_BASE_URL', 'RETAIL_LLM_MODEL', 'RETAIL_LLM_API_KEY') if not os.environ.get(name, '').strip()]
     return {'mode': 'llm' if configured() else 'guided', 'llmConfigured': configured(),
+            'missingSettings': missing,
             'model': os.environ.get('RETAIL_LLM_MODEL') if configured() else None,
             'source': 'Online Retail II', 'start': META['start'], 'end': META['end'], 'countries': META['countries'],
             'suggestions': [
