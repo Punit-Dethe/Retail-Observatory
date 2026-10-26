@@ -82,7 +82,7 @@ function Workspace(){
    update(b=>({...b,messages:[...b.messages,{id:uid(),role:'user',content:message}]}),false)
    try{
      const response=await fetch('/api/canvas/investigate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),signal:request.signal})
-     const result=await response.json().catch(()=>({}));if(!response.ok)throw new Error(result.error||'This investigation could not be calculated.')
+     const result=await response.json().catch(()=>({}));if(!response.ok)throw new Error(result.error||`This investigation could not be calculated (HTTP ${response.status}). Check that the Python server is running on port 8000 and see its terminal for details.`)
      if(request.signal.aborted||id!==requestId.current||current.current.activeId!==activeId)return
      const answer=result as AnalysisResponse;if(!Array.isArray(answer.blocks)||typeof answer.message!=='string')throw new Error('The analysis response was incomplete. Please try again.')
      const blocks=answer.blocks.slice(0,15),groupId=answer.id||uid(),width=440,gap=30
@@ -93,9 +93,12 @@ function Workspace(){
        const nodes:BoardNode[]=blocks.length?[{id:uid(),type:'heading',position:{x:baseX,y:baseY},selectable:false,data:{title:answer.title||'A new direction',subtitle:message.length>100?message.slice(0,99)+'…':message,groupId}}]:[]
        // Leave room for wrapped headings, the partial-month caption, and longer notes.
        let rowY=baseY+70
-       blocks.forEach((block,index)=>{
+       const theory=blocks[0]?.kind==='note'&&blocks[0].verdict?blocks[0]:null
+       if(theory){const full=width*2+gap;nodes.push({id:theory.id,type:'analysis',position:{x:baseX,y:rowY},style:{width:full},data:{block:theory,groupId,originQuestion:message}});rowY+=Math.max(300,Math.ceil((theory.body||'').length/120)*23+(theory.body||'').split('\n').length*8+190)}
+       const evidenceBlocks=theory?blocks.slice(1):blocks
+       evidenceBlocks.forEach((block,index)=>{
          nodes.push({id:block.id,type:'analysis',position:{x:baseX+(index%2)*(width+gap),y:rowY},style:{width},data:{block,groupId,originQuestion:message}})
-         if(index%2===1){const pair=blocks.slice(index-1,index+1);rowY+=Math.max(440,...pair.map(item=>item.kind==='note'?Math.ceil((item.body||'').length/55)*23+180:440))}
+         if(index%2===1){const pair=evidenceBlocks.slice(index-1,index+1);rowY+=Math.max(440,...pair.map(item=>item.kind==='note'?Math.ceil((item.body||'').length/55)*23+180:440))}
        })
        const nodeIds=new Set([...b.nodes,...nodes].map(n=>n.id));const edges=(answer.connections||[]).filter(e=>nodeIds.has(e.source)&&nodeIds.has(e.target)&&e.source!==e.target).map(e=>({...e,id:uid(),type:'smoothstep'}))
        if(anchor&&blocks.length)edges.push({id:uid(),source:anchor.id,target:blocks[0].id,label:'Follow-up',type:'smoothstep'})

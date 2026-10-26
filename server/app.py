@@ -7,6 +7,7 @@ import csv
 import io
 import json
 import mimetypes
+import os
 import sys
 import traceback
 import pandas as pd
@@ -36,11 +37,16 @@ def scope(query):
 
 
 class Handler(SimpleHTTPRequestHandler):
+    api_only = False
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(ROOT / 'dist'), **kwargs)
 
     def json_response(self, value, status=200):
         body = json.dumps(value, allow_nan=False, ensure_ascii=False).encode('utf-8')
+        if os.environ.get('VERCEL') and len(body) > 4_000_000:
+            status = 413
+            body = json.dumps({'error': 'This result exceeds the hosted response limit. Choose a narrower date range or run the full export locally.'}).encode('utf-8')
         self.send_response(status)
         self.send_header('Content-Type', 'application/json; charset=utf-8')
         self.send_header('Content-Length', str(len(body)))
@@ -52,9 +58,18 @@ class Handler(SimpleHTTPRequestHandler):
         if urlparse(self.path).path != '/api/canvas/investigate':
             return self.json_response({'error': 'Endpoint not found.'}, 404)
         try:
-            # Local UI endpoint: do not accept cross-site browser requests.
+            # Accept the local dev UI and the same-origin deployed Vercel UI.
             origin = self.headers.get('Origin')
-            if origin and origin not in ['http://127.0.0.1:8000', 'http://localhost:8000', 'http://127.0.0.1:5173', 'http://localhost:5173', f'http://127.0.0.1:{self.server.server_port}', f'http://localhost:{self.server.server_port}']:
+            port = getattr(self.server, 'server_port', 8000)
+            allowed = ['http://127.0.0.1:8000', 'http://localhost:8000', 'http://127.0.0.1:5173', 'http://localhost:5173', f'http://127.0.0.1:{port}', f'http://localhost:{port}']
+            if os.environ.get('VERCEL'):
+                host = self.headers.get('Host', '')
+                if host:
+                    allowed.append(f'https://{host}')
+                for key in ['VERCEL_URL', 'VERCEL_PROJECT_PRODUCTION_URL', 'VERCEL_BRANCH_URL']:
+                    if os.environ.get(key):
+                        allowed.append('https://' + os.environ[key])
+            if origin and origin not in allowed:
                 return self.json_response({'error': 'Cross-origin requests are not allowed.'}, 403)
             length = int(self.headers.get('Content-Length', '0'))
             if not 0 < length <= 100_000:
@@ -100,6 +115,8 @@ class Handler(SimpleHTTPRequestHandler):
                 for column in frame.select_dtypes(include=['object', 'str', 'category']).columns:
                     frame[column] = frame[column].map(lambda v: "'" + v if isinstance(v, str) and v.startswith(('=', '+', '-', '@', '\t', '\r')) else v)
                 body = ('\ufeff' + frame.to_csv(index=False)).encode('utf-8')
+                if os.environ.get('VERCEL') and len(body) > 4_000_000:
+                    return self.json_response({'error': 'This CSV exceeds the hosted response limit. Narrow the date range or export the complete data locally.'}, 413)
                 self.send_response(200)
                 self.send_header('Content-Type', 'text/csv; charset=utf-8')
                 self.send_header('Content-Disposition', f'attachment; filename="retail-{kind}-{start}-{end}.csv"')
@@ -108,6 +125,8 @@ class Handler(SimpleHTTPRequestHandler):
                 self.wfile.write(body)
                 return
             if parsed.path.startswith('/api/'):
+                return self.json_response({'error': 'Endpoint not found.'}, 404)
+            if self.api_only:
                 return self.json_response({'error': 'Endpoint not found.'}, 404)
             if not (ROOT / 'dist/index.html').exists():
                 return self.json_response({'message': 'API ready. Run npm run dev for the UI, or npm run build to serve it here.'})

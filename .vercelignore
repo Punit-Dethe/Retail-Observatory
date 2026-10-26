@@ -1,0 +1,12 @@
+.env
+.env.*
+node_modules/
+dist/
+references/
+data/raw/
+data/retail.sqlite
+data/retail.sqlite-shm
+data/retail.sqlite-wal
+__pycache__/
+.venv/
+*.log

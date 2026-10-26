@@ -9,6 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'server'))
 from canvas_agent import investigate, capabilities, ProviderError
 from canvas_analysis import META, DATA, catalog, build_investigation
+from canvas_query import run_query, QueryError
 
 
 class CanvasChecks(unittest.TestCase):
@@ -59,16 +60,85 @@ class CanvasChecks(unittest.TestCase):
             with self.assertRaises(ValueError):
                 investigate(payload)
 
-    def test_model_tool_contract_without_network(self):
-        args = {'tool': 'sales', 'start': '2011-01-01', 'end': '2011-12-09', 'country': 'France', 'productCode': None, 'countries': None}
-        plan = {'tool_calls': [{'id': 'call1', 'type': 'function', 'function': {'name': 'investigate_retail', 'arguments': json.dumps(args)}}]}
-        with patch('canvas_agent.configured', return_value=True), patch('canvas_agent.completion', side_effect=[plan, {'content': 'The computed charts show the selected French sales window.'}]):
-            value = investigate({'message': 'Investigate French sales in 2011'})
+    def test_query_engine_matches_independent_slice(self):
+        block, view, _ = run_query({'title': 'France months', 'purpose': 'test', 'measures': ['net_revenue', 'orders'], 'group_by': ['month'], 'filters': {'countries': ['France'], 'start': '2011-01-01'}}, META_SCOPE)
+        mask = DATA.date_id.between('2011-01-01', META['end']) & DATA.country.eq('France')
+        self.assertAlmostEqual(sum(r['net_revenue'] for r in block['rows']), float(DATA.loc[mask, 'amount'].sum()), places=1)
+        sales = DATA.loc[mask & (DATA.quantity > 0)]
+        self.assertEqual(sum(r['orders'] for r in block['rows']), sales.groupby('month', observed=True).invoice.nunique().sum())
+        self.assertEqual(block['evidence']['tool'], 'query')
+        self.assertEqual(block['evidence']['scope']['country'], 'France')
+        compare, _, _ = run_query({'measures': ['orders'], 'group_by': ['country'], 'filters': {'countries': ['France', 'Germany'], 'start': '2011-01-01', 'end': '2011-06-30'}, 'compare_period': {'start': '2010-01-01', 'end': '2010-06-30'}}, META_SCOPE)
+        de = next(r for r in compare['rows'] if r['country'] == 'Germany')
+        prev = DATA[DATA.date_id.between('2010-01-01', '2010-06-30') & DATA.country.eq('Germany') & (DATA.quantity > 0)].invoice.nunique()
+        self.assertEqual(de['orders_previous'], prev)
+        json.dumps(compare, allow_nan=False)
+        for bad in [{'measures': ['profit']}, {'group_by': ['zodiac']}, {'filters': {'sql': 'x'}}, {'filters': {'countries': ['Narnia']}}, {'filters': {'products': ['NOPE']}}, {'group_by': ['date']}, {'product_text': 'christmas'}]:
+            with self.assertRaises(QueryError):
+                run_query(bad, META_SCOPE)
+
+    def test_agent_loop_without_network(self):
+        query = {'title': 'Monthly revenue 2011', 'purpose': 'Check the Q4 peak', 'measures': ['net_revenue', 'orders'], 'group_by': ['month'], 'filters': {'start': '2011-01-01'}}
+        turn1 = {'tool_calls': [call('c1', 'query_retail', query), call('c2', 'query_retail', {'title': 'bad', 'purpose': 'x', 'measures': ['profit']})]}
+        fixed = {'title': 'Orders by country', 'purpose': 'Is it UK-led?', 'measures': ['orders'], 'group_by': ['country'], 'limit': 5, 'filters': {'start': '2011-09-01', 'end': '2011-11-30'}}
+        turn2 = {'tool_calls': [call('c3', 'query_retail', fixed)]}
+        seen = []
+
+        def fake(messages, tools=None, tool_choice='required', timeout=45):
+            seen.append(messages[-1])
+            if len(seen) == 1:
+                return turn1
+            if len(seen) == 2:
+                self.assertIn('error', json.loads(messages[-1]['content']))
+                return turn2
+            rows = json.loads(messages[-1]['content'])['rows']
+            nov = next(r for r in json.loads(messages[-4]['content'])['rows'] if r['month'] == '2011-11')
+            answer = f"Revenue peaked in November 2011 at £{nov['net_revenue']:,.2f} (E1). The United Kingdom placed {rows[0]['orders']:,} orders in autumn (E2). Profit rose 37.5%."
+            return {'tool_calls': [call('c4', 'present_answer', {'title': 'Q4 giftware peak', 'answer': answer, 'hypothesis': 'Seasonal gift buying drives Q4.', 'verdict': 'supported', 'reasoning': 'E1 shows the peak.',
+                    'evidence': [{'ref': 'E1', 'role': 'supports', 'caption': 'November is highest'}, {'ref': 'E2', 'role': 'context'}, {'ref': 'E9', 'role': 'supports'}], 'caveats': ['December is partial.'], 'follow_ups': ['Which products drove November?']})]}
+
+        with patch('canvas_agent.configured', return_value=True), patch('canvas_agent.completion', side_effect=fake):
+            value = investigate({'message': 'Why are sales highest in Q4 2011?'})
+        json.dumps(value, allow_nan=False)
         self.assertEqual(value['mode'], 'llm')
-        self.assertEqual(value['blocks'][0]['evidence']['scope']['country'], 'France')
-        with patch('canvas_agent.configured', return_value=True), patch('canvas_agent.completion', return_value={'content': 'No tool call'}):
+        self.assertEqual(value['verdict'], 'supported')
+        note, *charts = value['blocks']
+        self.assertEqual(note['kind'], 'note')
+        self.assertEqual(note['verdict'], 'supported')
+        self.assertEqual([c['role'] for c in charts], ['supports', 'context'])
+        self.assertEqual(charts[0]['subtitle'], 'November is highest')
+        self.assertEqual({e['target'] for e in value['connections']}, {note['id']})
+        self.assertTrue(any('E9' in w for w in value['warnings']))
+        self.assertTrue(any('37.5%' in w for w in value['warnings']), value['warnings'])
+        self.assertFalse(any('£' in w and 'could not be matched' in w and 'Revenue' in w for w in value['warnings']))
+        self.assertEqual(value['followUps'][0]['prompt'], 'Which products drove November?')
+
+    def test_agent_plain_text_and_failures(self):
+        with patch('canvas_agent.configured', return_value=True), patch('canvas_agent.completion', return_value={'content': 'RFM means recency, frequency and monetary value.'}):
+            value = investigate({'message': 'What is RFM?'})
+        self.assertEqual(value['blocks'], [])
+        self.assertIn('RFM', value['message'])
+        with patch('canvas_agent.configured', return_value=True), patch('canvas_agent.completion', return_value={'content': ''}):
             with self.assertRaises(ProviderError):
                 investigate({'message': 'Investigate sales'})
+        playbook = {'tool_calls': [call('p1', 'run_playbook', {'playbook': 'baskets', 'country': 'France', 'start': '2011-01-01'})]}
+        with patch('canvas_agent.configured', return_value=True), patch('canvas_agent.completion', side_effect=[playbook] * 7):
+            value = investigate({'message': 'Bundles in France'})
+        self.assertEqual(value['verdict'], 'inconclusive')
+        self.assertTrue(all(b['evidence']['scope']['country'] == 'France' for b in value['blocks'][1:]))
+        query = {'tool_calls': [call('q1', 'query_retail', {'title': 'Revenue by year', 'purpose': 'x', 'measures': ['net_revenue'], 'group_by': ['year']})]}
+        with patch('canvas_agent.configured', return_value=True), patch('canvas_agent.completion', side_effect=[query, ProviderError('The configured model could not be reached.')]):
+            value = investigate({'message': 'Revenue by year?'})
+        self.assertEqual(value['verdict'], 'inconclusive')
+        self.assertEqual(value['blocks'][1]['title'], 'Revenue by year')
+        self.assertIn('could not be reached', value['warnings'][0])
+
+
+def call(id, name, args):
+    return {'id': id, 'type': 'function', 'function': {'name': name, 'arguments': json.dumps(args)}}
+
+
+META_SCOPE = {'start': META['start'], 'end': META['end'], 'country': 'all'}
 
 
 if __name__ == '__main__':

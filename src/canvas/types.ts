@@ -2,10 +2,12 @@ import type { Edge, Node, Viewport } from '@xyflow/react'
 
 export type Tool = 'sales' | 'markets' | 'product' | 'customers' | 'baskets'
 export interface Scope { start:string; end:string; country:string; productCode?:string; countries?:string[] }
-export interface Evidence { tool:string;source:string;sourceUrl:string;sourceSha256:string;scope:Scope;rowCount:number;definitions:string[];query:string;generatedAt:string }
-export interface Block {id:string;kind:'chart'|'note';title:string;subtitle?:string;body?:string;tone?:'neutral'|'blue'|'amber';chartType?:'line'|'bar'|'donut'|'scatter'|'table';rows?:Record<string,string|number|null>[];xKey?:string;series?:{key:string;label:string}[];format?:'currency'|'percent'|'number';evidence:Evidence}
-export interface FollowUp {label:string;prompt:string;tool:Tool;productCode?:string}
-export interface AnalysisResponse {id:string;title:string;mode:'guided'|'llm';message:string;blocks:Block[];connections:{source:string;target:string;label:string}[];followUps:FollowUp[];warnings:string[]}
+export interface Evidence { tool:string;source:string;sourceUrl:string;sourceSha256:string;scope:Scope;rowCount:number;definitions:string[];query:string;generatedAt:string;spec?:Record<string,unknown> }
+export type Verdict = 'supported'|'partly_supported'|'not_supported'|'inconclusive'|'not_applicable'
+export type EvidenceRole = 'supports'|'challenges'|'context'
+export interface Block {id:string;kind:'chart'|'note';title:string;subtitle?:string;body?:string;tone?:'neutral'|'blue'|'amber';chartType?:'line'|'bar'|'donut'|'scatter'|'table';rows?:Record<string,string|number|null>[];xKey?:string;series?:{key:string;label:string}[];format?:'currency'|'percent'|'number';evidence:Evidence;verdict?:Verdict;hypothesis?:string;role?:EvidenceRole;ref?:string}
+export interface FollowUp {label:string;prompt:string;tool?:Tool;productCode?:string}
+export interface AnalysisResponse {id:string;title:string;mode:'guided'|'llm';message:string;blocks:Block[];connections:{source:string;target:string;label:string}[];followUps:FollowUp[];warnings:string[];verdict?:Verdict}
 export interface Capabilities {mode:'guided'|'llm';llmConfigured:boolean;model:string|null;source:string;start:string;end:string;countries:string[];suggestions:FollowUp[]}
 export interface CanvasNodeData extends Record<string,unknown> {block:Block;groupId:string;originQuestion:string}
 export type AnalysisNode = Node<CanvasNodeData,'analysis'>

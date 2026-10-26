@@ -2,6 +2,8 @@
 
 A local analytics dashboard for a college data warehousing and mining project, built on the real UCI Online Retail II dataset. React + TypeScript + Recharts frontend, Python analytics API, SQLite dimensional warehouse. No API key or Kaggle login required.
 
+For hosting the dashboard, Playground and Python API together, follow [Vercel deployment settings](docs/vercel.md). The repository includes routing, a Python function entry point and a compressed deployment warehouse. Model chat uses server-side `RETAIL_LLM_*` variables; never put the key in a `VITE_*` variable.
+
 ## Run
 
 From this folder:
